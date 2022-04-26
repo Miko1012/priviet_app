@@ -23,6 +23,7 @@ class _LoginFormState extends State<LoginForm> {
             content: Text('Pomyślnie zalogowano!'),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 2)));
+        Navigator.of(context).pushNamedAndRemoveUntil('/chats', (Route<dynamic> route) => false);
         break;
       case 401:
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

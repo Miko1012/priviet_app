@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:priviet_app/pages/chats.dart';
 import 'package:priviet_app/pages/login.dart';
-import 'package:priviet_app/pages/register.dart';
+import 'package:priviet_app/pages/registration.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,6 +20,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const WelcomePage(),
         '/register': (context) => const RegistrationScreen(),
         '/login': (context) => const LoginScreen(),
+        '/chats': (context) => const ChatsScreen(),
       },
       theme: ThemeData(
         // This is the theme of your application.
