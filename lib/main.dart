@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:priviet_app/pages/login.dart';
+import 'package:priviet_app/pages/register.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,6 +14,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const WelcomePage(),
+        '/register': (context) => const RegistrationScreen(),
+        '/login': (context) => const LoginScreen(),
+      },
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -22,9 +30,8 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.purple,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
@@ -110,6 +117,49 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+class WelcomePage extends StatelessWidget {
+  const WelcomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          const Expanded(
+              child: Center(
+                  child: Image(image: AssetImage('img/logo_priviet.png')))),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/register');
+              },
+              child: const Text('Zarejestruj się'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size.fromHeight(40),
+              ),
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/login');
+              },
+              child: const Text('Zaloguj się'),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.white,
+                onPrimary: Theme.of(context).colorScheme.primary,
+                minimumSize: const Size.fromHeight(40),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
