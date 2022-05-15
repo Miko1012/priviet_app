@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../helpers/api_helper.dart';
+
 class ChatsScreen extends StatefulWidget {
   const ChatsScreen({Key? key}) : super(key: key);
 
@@ -28,8 +30,42 @@ class _ChatsScreenState extends State<ChatsScreen> {
     }
   }
 
-  void createNewChat(String addressee) {
-
+  void createNewChat(String addressee) async{
+    APIHelper api = APIHelper();
+    int chatCreationStatus = await api.createNewChat(addressee);
+    switch (chatCreationStatus) {
+      case 200:
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Pomyślnie utworzono nowy czat!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3)));
+        break;
+      case 401:
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Niedozwolona operacja!'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3)));
+        break;
+      case 404:
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Podany adresat nie istnieje!'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3)));
+        break;
+      case 409:
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Czat z tym użytkownikiem już istnieje!'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3)));
+        break;
+      default:
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Wystąpił błąd podczas tworzenia nowego czatu!'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3)));
+        break;
+    }
+    Navigator.pop(context);
   }
 
   void showNewChatModal() {

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -28,12 +29,21 @@ class APIHelper {
       await storage.write(
           key: 'access-token',
           value: jsonDecode(response.body)["access_token"]);
-      await storage.write(
-        key: 'logged-as',
-        value: login
-      );
+      await storage.write(key: 'logged-as', value: login);
     }
+    return response.statusCode;
+  }
 
+  Future<int> createNewChat(String addressee) async {
+    const FlutterSecureStorage storage = FlutterSecureStorage();
+    String? token = await storage.read(key: 'access-token');
+    String json = jsonEncode(<String, String>{'addressee': addressee});
+    final response = await http.post(Uri.parse(url + '/chats'),
+        headers: {
+          "Content-Type": "application/json",
+          HttpHeaders.authorizationHeader: 'Bearer ' + token!
+        },
+        body: json);
     return response.statusCode;
   }
 }
