@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:priviet_app/pages/chats.dart';
 import 'package:priviet_app/pages/login.dart';
+import 'package:priviet_app/pages/messages.dart';
 import 'package:priviet_app/pages/registration.dart';
 
 void main() {

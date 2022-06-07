@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../helpers/rsa_helper.dart';
+import '../pages/messages.dart';
 
 class ChatListPosition extends StatelessWidget {
   const ChatListPosition({
@@ -50,7 +51,7 @@ class ChatListPosition extends StatelessWidget {
           ],
         ),
       ),
-      onTap: () => {},
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => MessagesScreen(username: username))),
     );
   }
 }

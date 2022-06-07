@@ -27,14 +27,13 @@ class RSAHelper {
   }
 
   Future<String> decryptMessage(message) async {
+    print('encrypted input: ' + message);
     String username = await storage.read(key: 'logged-as') as String;
     var privateKeyString = await storage.read(key: 'private-'+username);
+    print('private key: ' + privateKeyString!);
     var privateKey = helper.parsePrivateKeyFromPem(privateKeyString);
-
-
-
     String decrypted = decrypt(message, privateKey);
-    print('decrypted msg: ' + decrypted);
+    print('decrypted output: ' + decrypted);
     return decrypted;
     // #TODO obsługa błędu odszyfrowywania
   }
@@ -42,8 +41,6 @@ class RSAHelper {
   Future<String> encryptMessage(message, publicKeyString) async {
     var publicKey = helper.parsePublicKeyFromPem(publicKeyString);
     var encryptedMessage = encrypt(message, publicKey);
-    // print('encrypted: '+encryptedMessage);
-
     return encryptedMessage;
   }
 }

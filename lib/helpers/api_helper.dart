@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:priviet_app/helpers/rsa_helper.dart';
 
-//import '../objects/chat_position.dart';
 
 class APIHelper {
   static const String url = 'http://10.0.2.2:5000';
@@ -82,7 +81,7 @@ class APIHelper {
     const FlutterSecureStorage storage = FlutterSecureStorage();
     String? token = await storage.read(key: 'access-token');
     final response = await http
-        .get(Uri.parse('http://10.0.2.2:5000/chats'),
+        .get(Uri.parse(url + '/chats'),
         headers: {
           HttpHeaders.authorizationHeader: 'Bearer '+token!,
         }
@@ -90,6 +89,24 @@ class APIHelper {
     if (response.statusCode == 200) {
       var responseJson = json.decode(response.body) as List;
       print('got chats!');
+      return responseJson;
+    }
+    // #TODO zrobić obsługę błędów z api
+    return [];
+  }
+
+  Future<List> getMessages(user) async {
+    const FlutterSecureStorage storage = FlutterSecureStorage();
+    String? token = await storage.read(key: 'access-token');
+    final response = await http
+        .get(Uri.parse(url + '/messages/' + user),
+        headers: {
+          HttpHeaders.authorizationHeader: 'Bearer '+token!,
+        }
+    );
+    if (response.statusCode == 200) {
+      var responseJson = json.decode(response.body) as List;
+      print('got messages!');
       return responseJson;
     }
     // #TODO zrobić obsługę błędów z api
