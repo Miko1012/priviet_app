@@ -30,7 +30,7 @@ class RSAHelper {
     print('encrypted input: ' + message);
     String username = await storage.read(key: 'logged-as') as String;
     var privateKeyString = await storage.read(key: 'private-'+username);
-    print('private key: ' + privateKeyString!);
+    // print('private key: ' + privateKeyString!);
     var privateKey = helper.parsePrivateKeyFromPem(privateKeyString);
     String decrypted = decrypt(message, privateKey);
     print('decrypted output: ' + decrypted);

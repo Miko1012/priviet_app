@@ -106,10 +106,51 @@ class APIHelper {
     );
     if (response.statusCode == 200) {
       var responseJson = json.decode(response.body) as List;
-      print('got messages!');
+      // print('got messages!');
       return responseJson;
     }
     // #TODO zrobić obsługę błędów z api
     return [];
+  }
+
+  Future<int> sendMessage(String message, String addressee) async {
+    const FlutterSecureStorage storage = FlutterSecureStorage();
+    RSAHelper rsa = RSAHelper();
+    String? token = await storage.read(key: 'access-token');
+
+    //  get addressee public key from redis database
+    final responseAddresseePublicKey = await http.get(Uri.parse(url + '/public-key/' + addressee),
+        headers: {
+          HttpHeaders.authorizationHeader: 'Bearer ' + token!,
+        }
+    );
+    if(responseAddresseePublicKey.statusCode != 200) {
+      return responseAddresseePublicKey.statusCode;
+    }
+    String addresseePublicKey = responseAddresseePublicKey.body;
+    String? loggedInAs = await storage.read(key: 'logged-as');
+    String? senderPublicKey = await storage.read(key: 'public-' + loggedInAs!);
+
+    String senderEncryptedMessage = await rsa.encryptMessage(message, senderPublicKey);
+    String addresseeEncryptedMessage = await rsa.encryptMessage(message, addresseePublicKey);
+
+    print('addresseePublicKey: '+addresseePublicKey);
+    print('senderPublicKey: '+senderPublicKey!);
+    print('senderEncryptedMessage: '+senderEncryptedMessage);
+    print('addresseeEncryptedMessage: '+addresseeEncryptedMessage);
+
+    String json = jsonEncode(<String, String>{
+      'addressee': addressee,
+      'sender_encrypted_message': senderEncryptedMessage,
+      'addressee_encrypted_message': addresseeEncryptedMessage
+    });
+
+    final response = await http.post(Uri.parse(url + '/message'),
+        headers: {
+          "Content-Type": "application/json",
+          HttpHeaders.authorizationHeader: 'Bearer ' + token!,
+        },
+        body: json);
+    return response.statusCode;
   }
 }

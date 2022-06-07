@@ -22,6 +22,24 @@ class _ChatsScreenState extends State<ChatsScreen> {
   APIHelper api = APIHelper();
   RSAHelper rsa = RSAHelper();
 
+  void getChats() async {
+    setState(() {
+      _chats.clear();
+    });
+    List chatsJson = await api.getChats();
+    List<ChatData> chatsData = chatsJson.map((chat) => ChatData.fromJson(chat)).toList();
+    for (var c in chatsData) {
+      var message = c.getMessage();
+      String decrypted = await rsa.decryptMessage(message);
+      var chat = ChatListPosition(username: c.getUsername(),
+          message: decrypted,
+          datetime: c.getDatetime());
+      setState(() {
+        _chats.insert(0, chat);
+      });
+    }
+  }
+
   Future<void> handleClick(String choice) async {
     switch (choice) {
       case 'Wyloguj się':
@@ -34,26 +52,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
         // #TODO: zrobić screena z informacjami o użytkowniku
         break;
       case 'Odśwież czaty':
-        setState(() {
-          _chats.clear();
-        });
-        print('getting chats!');
-        List chatsJson = await api.getChats();
-        List<ChatData> chatsData = chatsJson.map((chat) => ChatData.fromJson(chat)).toList();
-
-        for (var c in chatsData) {
-          var message = c.getMessage();
-          print('message: '+message);
-          String decrypted = await rsa.decryptMessage(message);
-          // print('decrypted: '+decrypted);
-
-          var chat = ChatListPosition(username: c.getUsername(),
-              message: decrypted,
-              datetime: c.getDatetime());
-          setState(() {
-            _chats.insert(0, chat);
-          });
-        }
+        getChats();
         break;
     }
   }
@@ -122,6 +121,12 @@ class _ChatsScreenState extends State<ChatsScreen> {
       },
       context: context,
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getChats();
   }
 
   @override

@@ -11,6 +11,7 @@ import 'package:priviet_app/data_classes/message_data.dart';
 import '../helpers/api_helper.dart';
 import '../helpers/rsa_helper.dart';
 import '../page_parts/message.dart';
+import '../page_parts/message_composer.dart';
 
 
 class MessagesScreen extends StatefulWidget {
@@ -70,10 +71,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
               itemCount: _messages.length,
             ),
           ),
-          /*Align(
+          Align(
             alignment: Alignment.bottomCenter,
-            child: _buildTextComposer(),
-          )*/
+            child: MessageComposer(addressee: widget.username),
+          )
         ],
       ),
     );
