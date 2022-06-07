@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:priviet_app/helpers/rsa_helper.dart';
+
+//import '../objects/chat_position.dart';
 
 class APIHelper {
   static const String url = 'http://10.0.2.2:5000';
@@ -36,14 +39,60 @@ class APIHelper {
 
   Future<int> createNewChat(String addressee) async {
     const FlutterSecureStorage storage = FlutterSecureStorage();
+    RSAHelper rsa = RSAHelper();
     String? token = await storage.read(key: 'access-token');
-    String json = jsonEncode(<String, String>{'addressee': addressee});
+
+    //  get addressee public key from redis database
+    final responseAddresseePublicKey = await http.get(Uri.parse(url + '/public-key/' + addressee),
+        headers: {
+          HttpHeaders.authorizationHeader: 'Bearer ' + token!,
+        }
+    );
+    if(responseAddresseePublicKey.statusCode != 200) {
+      return responseAddresseePublicKey.statusCode;
+    }
+    String addresseePublicKey = responseAddresseePublicKey.body;
+    String? loggedInAs = await storage.read(key: 'logged-as');
+    String? senderPublicKey = await storage.read(key: 'public-' + loggedInAs!);
+
+    String senderEncryptedMessage = await rsa.encryptMessage("To jest start konwersacji.", senderPublicKey);
+    String addresseeEncryptedMessage = await rsa.encryptMessage("To jest start konwersacji.", addresseePublicKey);
+
+    print('addresseePublicKey: '+addresseePublicKey);
+    print('senderPublicKey: '+senderPublicKey!);
+    print('senderEncryptedMessage: '+senderEncryptedMessage);
+    print('addresseeEncryptedMessage: '+addresseeEncryptedMessage);
+
+    String json = jsonEncode(<String, String>{
+      'addressee': addressee,
+      'sender_encrypted_message': senderEncryptedMessage,
+      'addressee_encrypted_message': addresseeEncryptedMessage
+    });
+
     final response = await http.post(Uri.parse(url + '/chats'),
         headers: {
           "Content-Type": "application/json",
-          HttpHeaders.authorizationHeader: 'Bearer ' + token!
+          HttpHeaders.authorizationHeader: 'Bearer ' + token!,
         },
         body: json);
     return response.statusCode;
+  }
+
+  Future<List> getChats() async {
+    const FlutterSecureStorage storage = FlutterSecureStorage();
+    String? token = await storage.read(key: 'access-token');
+    final response = await http
+        .get(Uri.parse('http://10.0.2.2:5000/chats'),
+        headers: {
+          HttpHeaders.authorizationHeader: 'Bearer '+token!,
+        }
+    );
+    if (response.statusCode == 200) {
+      var responseJson = json.decode(response.body) as List;
+      print('got chats!');
+      return responseJson;
+    }
+    // #TODO zrobić obsługę błędów z api
+    return [];
   }
 }

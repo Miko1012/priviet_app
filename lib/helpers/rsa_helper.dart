@@ -25,4 +25,25 @@ class RSAHelper {
     await storage.write(key: 'public-'+username, value: stringPublicKey);
     return stringPublicKey;
   }
+
+  Future<String> decryptMessage(message) async {
+    String username = await storage.read(key: 'logged-as') as String;
+    var privateKeyString = await storage.read(key: 'private-'+username);
+    var privateKey = helper.parsePrivateKeyFromPem(privateKeyString);
+
+
+
+    String decrypted = decrypt(message, privateKey);
+    print('decrypted msg: ' + decrypted);
+    return decrypted;
+    // #TODO obsługa błędu odszyfrowywania
+  }
+
+  Future<String> encryptMessage(message, publicKeyString) async {
+    var publicKey = helper.parsePublicKeyFromPem(publicKeyString);
+    var encryptedMessage = encrypt(message, publicKey);
+    // print('encrypted: '+encryptedMessage);
+
+    return encryptedMessage;
+  }
 }

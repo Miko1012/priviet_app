@@ -1,9 +1,13 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:priviet_app/data_classes/chat_data.dart';
+import 'package:priviet_app/page_parts/chat.dart';
 
 import '../helpers/api_helper.dart';
+import '../helpers/rsa_helper.dart';
 
 class ChatsScreen extends StatefulWidget {
   const ChatsScreen({Key? key}) : super(key: key);
@@ -15,6 +19,8 @@ class ChatsScreen extends StatefulWidget {
 class _ChatsScreenState extends State<ChatsScreen> {
   final FlutterSecureStorage storage = const FlutterSecureStorage();
   final _chats = [];
+  APIHelper api = APIHelper();
+  RSAHelper rsa = RSAHelper();
 
   Future<void> handleClick(String choice) async {
     switch (choice) {
@@ -26,6 +32,28 @@ class _ChatsScreenState extends State<ChatsScreen> {
         break;
       case 'Moje konto':
         // #TODO: zrobić screena z informacjami o użytkowniku
+        break;
+      case 'Odśwież czaty':
+        setState(() {
+          _chats.clear();
+        });
+        print('getting chats!');
+        List chatsJson = await api.getChats();
+        List<ChatData> chatsData = chatsJson.map((chat) => ChatData.fromJson(chat)).toList();
+
+        for (var c in chatsData) {
+          var message = c.getMessage();
+          print('message: '+message);
+          String decrypted = await rsa.decryptMessage(message);
+          // print('decrypted: '+decrypted);
+
+          var chat = ChatListPosition(username: c.getUsername(),
+              message: decrypted,
+              datetime: c.getDatetime());
+          setState(() {
+            _chats.insert(0, chat);
+          });
+        }
         break;
     }
   }
@@ -105,7 +133,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
           PopupMenuButton<String>(
             onSelected: handleClick,
             itemBuilder: (BuildContext context) {
-              return {'Wyloguj się', 'Moje konto'}.map((String choice) {
+              return {'Wyloguj się', 'Moje konto', 'Odśwież czaty'}.map((String choice) {
                 return PopupMenuItem<String>(
                   value: choice,
                   child: Text(choice),
@@ -127,9 +155,15 @@ class _ChatsScreenState extends State<ChatsScreen> {
                 textAlign: TextAlign.center,
               ),
             )
-          : const Center(
-              child: Text('tu będą czaty'),
-            ),
+          : Column(
+        children: [
+      Flexible(
+      child: ListView.builder(
+      itemBuilder: (_, index) => _chats[index],
+      itemCount: _chats.length,
+    ), ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: showNewChatModal,
         backgroundColor: Colors.purple,
