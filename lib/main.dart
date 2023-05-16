@@ -4,6 +4,8 @@ import 'package:priviet_app/pages/login.dart';
 import 'package:priviet_app/pages/messages.dart';
 import 'package:priviet_app/pages/registration.dart';
 
+import 'pages/password_reset.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -22,6 +24,7 @@ class MyApp extends StatelessWidget {
         '/register': (context) => const RegistrationScreen(),
         '/login': (context) => const LoginScreen(),
         '/chats': (context) => const ChatsScreen(),
+        '/reset_password': (context) => const PasswordResetScreen(),
       },
       theme: ThemeData(
         // This is the theme of your application.

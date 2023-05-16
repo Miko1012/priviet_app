@@ -8,7 +8,7 @@ import 'package:priviet_app/helpers/rsa_helper.dart';
 class APIHelper {
   static const String url = 'http://10.0.2.2:5000';
 
-  Future<int> registerUser(
+  Future<Map> registerUser(
       String name, String login, String password, String publicKey) async {
     String json = jsonEncode(<String, String>{
       'name': name,
@@ -17,6 +17,23 @@ class APIHelper {
       'public_key': publicKey
     });
     final response = await http.post(Uri.parse(url + '/register'),
+        headers: {"Content-Type": "application/json"}, body: json);
+    // return response.statusCode;
+    if (response.statusCode == 201) {
+      return {'status': 201, 'recovery_code': response.body};
+    }
+    // #TODO zrobić obsługę błędów z api
+    return {'status': response.statusCode};
+  }
+
+  Future<int> setNewPassword(
+      String login, String recoveryCode, String newPassword) async {
+    String json = jsonEncode(<String, String>{
+      'login': login,
+      'recovery_code': recoveryCode,
+      'new_password': newPassword
+    });
+    final response = await http.post(Uri.parse(url + '/reset-password'),
         headers: {"Content-Type": "application/json"}, body: json);
     return response.statusCode;
   }

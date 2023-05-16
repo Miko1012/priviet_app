@@ -8,6 +8,7 @@ class RegistrationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Container(
             alignment: Alignment.center,

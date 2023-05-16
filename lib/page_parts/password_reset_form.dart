@@ -3,43 +3,34 @@ import 'package:priviet_app/helpers/api_helper.dart';
 import 'package:priviet_app/helpers/rsa_helper.dart';
 import 'package:flutter/services.dart';
 
-class RegistrationForm extends StatefulWidget {
-  const RegistrationForm({Key? key}) : super(key: key);
+class PasswordResetForm extends StatefulWidget {
+  const PasswordResetForm({Key? key}) : super(key: key);
 
   @override
-  State<RegistrationForm> createState() => _RegistrationFormState();
+  State<PasswordResetForm> createState() => _PasswordResetFormState();
 }
 
-class _RegistrationFormState extends State<RegistrationForm> {
+class _PasswordResetFormState extends State<PasswordResetForm> {
   final _formKey = GlobalKey<FormState>();
-  late String name;
   late String login;
-  late String password;
+  late String recoveryKey;
+  late String newPassword;
 
-  void register() async {
+  void resetPassword() async {
     APIHelper api = APIHelper();
     RSAHelper rsa = RSAHelper();
-    String publicKey = await rsa.generateKeyPair(login);
-    Map registrationStatus =
-        await api.registerUser(name, login, password, publicKey);
-    switch (registrationStatus['status']) {
-      case 201:
+    int passwordResetStatus =
+    await api.setNewPassword(login, recoveryKey, newPassword);
+    switch (passwordResetStatus) {
+      case 200:
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Pomyślnie zarejestrowano użytkownika!'),
+            content: Text('Pomyślnie ustawiono nowe hasło użytkownika!'),
             backgroundColor: Colors.green,
-            duration: Duration(seconds: 2)));
-        _showRecoveryCode(registrationStatus['recovery_code']);
-            // print(registrationStatus['recovery_code']);
-        break;
-      case 409:
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Podany login jest zajęty!'),
-            backgroundColor: Colors.red,
             duration: Duration(seconds: 2)));
         break;
       default:
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Wystąpił błąd przy rejestracji!'),
+            content: Text('Nie udało się ustawić nowego hasła!'),
             backgroundColor: Colors.red,
             duration: Duration(seconds: 2)));
         break;
@@ -93,22 +84,6 @@ class _RegistrationFormState extends State<RegistrationForm> {
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: TextFormField(
                 decoration: const InputDecoration(
-                  labelText: 'Imię i nazwisko',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Wpisz swoje imię i nazwisko';
-                  } else {
-                    name = value;
-                  }
-                  return null;
-                },
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: TextFormField(
-                decoration: const InputDecoration(
                   labelText: 'Login',
                 ),
                 validator: (value) {
@@ -125,14 +100,30 @@ class _RegistrationFormState extends State<RegistrationForm> {
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: TextFormField(
                 decoration: const InputDecoration(
-                  labelText: 'Hasło',
+                  labelText: 'Kod resetowania hasła',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Wpisz swój kod resetowania hasła';
+                  } else {
+                    recoveryKey = value;
+                  }
+                  return null;
+                },
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Nowe hasło',
                 ),
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Wpisz hasło';
+                    return 'Wpisz swoje nowe hasło';
                   } else {
-                    password = value;
+                    newPassword = value;
                   }
                   return null;
                 },
@@ -147,14 +138,14 @@ class _RegistrationFormState extends State<RegistrationForm> {
                 if (_formKey.currentState!.validate()) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Rejestruję użytkownika...'),
+                      content: Text('Ustawiam nowe hasło...'),
                       duration: Duration(seconds: 1),
                     ),
                   );
-                  register();
+                  resetPassword();
                 }
               },
-              child: const Text('Zarejestruj'),
+              child: const Text('Ustaw nowe hasło'),
             ),
           ],
         ),

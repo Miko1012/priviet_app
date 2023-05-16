@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../page_parts/login_form.dart';
+import '../page_parts/password_reset_form.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class PasswordResetScreen extends StatelessWidget {
+  const PasswordResetScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -13,9 +14,9 @@ class LoginScreen extends StatelessWidget {
         children: <Widget>[
           Container(
             alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(vertical: 40),
+            padding: const EdgeInsets.only(top: 20),
             child: const Text(
-              "LOGOWANIE",
+              "RESETOWANIE",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.purple,
@@ -23,29 +24,29 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
           ),
-          const LoginForm(),
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            child: InkWell(
-              child: const Text(
-                "Nie masz konta? Zarejestruj się tutaj.",
-                style: TextStyle(
-                  decoration: TextDecoration.underline,
-                ),
+            alignment: Alignment.center,
+            padding: const EdgeInsets.only(bottom: 40),
+            child: const Text(
+              "HASŁA",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.purple,
+                fontSize: 36,
               ),
-              onTap: () => Navigator.pushNamed(context, '/register'),
             ),
           ),
+          const PasswordResetForm(),
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 10),
+            margin: const EdgeInsets.symmetric(vertical: 20),
             child: InkWell(
               child: const Text(
-                "Nie pamiętasz hasła? Zresetuj je tutaj.",
+                "Zresetowałeś hasło? Zaloguj się tutaj.",
                 style: TextStyle(
                   decoration: TextDecoration.underline,
                 ),
               ),
-              onTap: () => Navigator.pushNamed(context, '/reset_password'),
+              onTap: () => Navigator.pushNamed(context, '/login'),
             ),
           ),
         ],
